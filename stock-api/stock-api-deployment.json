@@ -21,6 +21,12 @@
         }
       },
       "spec": {
+        "volumes": [
+          {
+            "name": "cache-volume",
+            "emptyDir": {}
+          }
+        ],
         "containers": [
           {
             "name": "stock-api",
@@ -40,6 +46,12 @@
                     "key": "connection_string"
                   }
                 }
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "cache-volume",
+                "mountPath": "/cache"
               }
             ]
           }
