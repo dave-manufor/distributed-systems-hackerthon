@@ -1,0 +1,65 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "web-deployment",
+    "labels": {
+      "app": "web"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "web"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "web"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "secrets",
+            "secret": {
+              "secretName": "web-secret-api"
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "web",
+            "image": "widgetario/web:21.03",
+            "ports": [
+              {
+                "containerPort": 80,
+                "name": "web-http-port"
+              }
+            ],
+            "env": [
+              {
+                "name": "Widgetario__Theme",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "web-config",
+                    "key": "theme"
+                  }
+                }
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "secrets",
+                "mountPath": "/app/secrets",
+                "readOnly": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "products-api-deployment",
+    "labels": {
+      "app": "products-api"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "products-api"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "products-api"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "app-properties",
+            "secret": {
+              "secretName": "products-api-secret"
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "products-api",
+            "image": "widgetario/products-api:21.03",
+            "ports": [
+              {
+                "containerPort": 80,
+                "name": "products-port"
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "app-properties",
+                "mountPath": "/app//application.properties",
+                "subPath": "application.properties",
+                "readOnly": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

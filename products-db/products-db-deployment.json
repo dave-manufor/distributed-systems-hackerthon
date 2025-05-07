@@ -1,0 +1,50 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "products-db-deployment",
+    "labels": {
+      "app": "products-db"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "products-db"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "products-db"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "products-db",
+            "image": "widgetario/products-db:21.03",
+            "ports": [
+              {
+                "containerPort": 5432,
+                "name": "db-port"
+              }
+            ],
+            "env": [
+              {
+                "name": "POSTGRES_PASSWORD",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "db-secret",
+                    "key": "user_password"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "stock-api-deployment",
+    "labels": {
+      "app": "stock-api"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "stock-api"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "stock-api"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "stock-api",
+            "image": "widgetario/stock-api:21.03",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "name": "stock-api-port"
+              }
+            ],
+            "env": [
+              {
+                "name": "POSTGRES_CONNECTION_STRING",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "stock-api-secret",
+                    "key": "connection_string"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
