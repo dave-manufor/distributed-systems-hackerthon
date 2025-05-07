@@ -5,7 +5,7 @@
     "name": "products-api"
   },
   "spec": {
-    "type": "ClusterIP",
+    "type": "ClusterI",
     "selector": {
       "app": "products-api"
     },
