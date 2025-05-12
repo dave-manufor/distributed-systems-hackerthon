@@ -1,14 +1,12 @@
 {
   "apiVersion": "apps/v1",
-  "kind": "Deployment",
+  "kind": "StatefulSet",
   "metadata": {
-    "name": "products-db-deployment",
-    "labels": {
-      "app": "products-db"
-    }
+    "name": "products-db"
   },
   "spec": {
-    "replicas": 1,
+    "replicas": 2,
+    "serviceName": "products-db-service",
     "selector": {
       "matchLabels": {
         "app": "products-db"
@@ -24,27 +22,44 @@
         "containers": [
           {
             "name": "products-db",
-            "image": "widgetario/products-db:21.03",
+            "image": "widgetario/products-db:postgres-replicated",
             "ports": [
               {
                 "containerPort": 5432,
-                "name": "db-port"
+                "name": "postgres-port"
               }
             ],
-            "env": [
+            "envFrom": [
               {
-                "name": "POSTGRES_PASSWORD",
-                "valueFrom": {
-                  "secretKeyRef": {
-                    "name": "db-secret",
-                    "key": "user_password"
-                  }
+                "secretRef": {
+                  "name": "db-secret"
                 }
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "data",
+                "mountPath": "/var/lib/postgresql/data"
               }
             ]
           }
         ]
       }
-    }
+    },
+    "volumeClaimTemplates": [
+      {
+        "metadata": {
+          "name": "data"
+        },
+        "spec": {
+          "accessModes": ["ReadWriteOnce"],
+          "resources": {
+            "requests": {
+              "storage": "100Mi"
+            }
+          }
+        }
+      }
+    ]
   }
 }
