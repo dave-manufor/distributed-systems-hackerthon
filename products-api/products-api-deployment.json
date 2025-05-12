@@ -42,8 +42,7 @@
             "volumeMounts": [
               {
                 "name": "app-properties",
-                "mountPath": "/app/application.properties",
-                "subPath": "application.properties",
+                "mountPath": "/app/config",
                 "readOnly": true
               }
             ]
