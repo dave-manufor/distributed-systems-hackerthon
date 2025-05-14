@@ -46,7 +46,28 @@
                 "subPath": "application.properties",
                 "readOnly": true
               }
-            ]
+            ],
+            "resources": {
+              "requests": { "cpu": "100m", "memory": "128Mi" },
+              "limits": { "cpu": "500m", "memory": "512Mi" }
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/",
+                "port": 80
+              },
+              "initialDelaySeconds": 90,
+              "periodSeconds": 25,
+              "failureThreshold": 1
+            },
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/",
+                "port": 80
+              },
+              "initialDelaySeconds": 90,
+              "periodSeconds": 30
+            }
           }
         ]
       }
