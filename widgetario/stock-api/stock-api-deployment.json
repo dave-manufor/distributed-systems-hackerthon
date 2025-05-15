@@ -9,7 +9,8 @@
     "annotations": {
       "prometheus.io/scrape": "true",
       "prometheus.io/port": "8080",
-      "prometheus.io/path": "/metrics"
+      "prometheus.io/path": "/metrics",
+      "prometheus.io/component": "stock-api"
     }
   },
   "spec": {
@@ -23,6 +24,12 @@
       "metadata": {
         "labels": {
           "app": "stock-api"
+        },
+        "annotations": {
+          "prometheus.io/scrape": "true",
+          "prometheus.io/port": "8080",
+          "prometheus.io/path": "/metrics",
+          "prometheus.io/component": "stock-api"
         }
       },
       "spec": {

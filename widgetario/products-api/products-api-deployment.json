@@ -9,7 +9,8 @@
     "annotations": {
       "prometheus.io/scrape": "true",
       "prometheus.io/port": "80",
-      "prometheus.io/path": "/actuator/prometheus"
+      "prometheus.io/path": "/actuator/prometheus",
+      "prometheus.io/component": "products-api"
     }
   },
   "spec": {
@@ -23,6 +24,12 @@
       "metadata": {
         "labels": {
           "app": "products-api"
+        },
+        "annotations": {
+          "prometheus.io/scrape": "true",
+          "prometheus.io/port": "80",
+          "prometheus.io/path": "/actuator/prometheus",
+          "prometheus.io/component": "products-api"
         }
       },
       "spec": {
