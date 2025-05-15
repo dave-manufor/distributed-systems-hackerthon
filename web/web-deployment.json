@@ -66,12 +66,12 @@
                 "path": "/",
                 "port": 80
               },
-              "initialDelaySeconds": 5,
+              "initialDelaySeconds": 25,
               "periodSeconds": 10
             },
             "livenessProbe": {
               "httpGet": {
-                "path": "/healthz",
+                "path": "/",
                 "port": 80
               },
               "initialDelaySeconds": 10,
