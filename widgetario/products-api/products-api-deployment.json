@@ -2,56 +2,54 @@
   "apiVersion": "apps/v1",
   "kind": "Deployment",
   "metadata": {
-    "name": "stock-api-deployment",
+    "name": "products-api-deployment",
     "labels": {
-      "app": "stock-api"
+      "app": "products-api"
+    },
+    "annotations": {
+      "prometheus.io/scrape": "true",
+      "prometheus.io/port": "80",
+      "prometheus.io/path": "/actuator/prometheus"
     }
   },
   "spec": {
     "replicas": 1,
     "selector": {
       "matchLabels": {
-        "app": "stock-api"
+        "app": "products-api"
       }
     },
     "template": {
       "metadata": {
         "labels": {
-          "app": "stock-api"
+          "app": "products-api"
         }
       },
       "spec": {
         "volumes": [
           {
-            "name": "cache-volume",
-            "emptyDir": {}
+            "name": "app-properties",
+            "secret": {
+              "secretName": "products-api-secret"
+            }
           }
         ],
         "containers": [
           {
-            "name": "stock-api",
-            "image": "widgetario/stock-api:21.03",
+            "name": "products-api",
+            "image": "widgetario/products-api:21.03",
             "ports": [
               {
-                "containerPort": 8080,
-                "name": "stock-api-port"
-              }
-            ],
-            "env": [
-              {
-                "name": "POSTGRES_CONNECTION_STRING",
-                "valueFrom": {
-                  "secretKeyRef": {
-                    "name": "stock-api-secret",
-                    "key": "connection_string"
-                  }
-                }
+                "containerPort": 80,
+                "name": "products-port"
               }
             ],
             "volumeMounts": [
               {
-                "name": "cache-volume",
-                "mountPath": "/cache"
+                "name": "app-properties",
+                "mountPath": "/app//application.properties",
+                "subPath": "application.properties",
+                "readOnly": true
               }
             ],
             "resources": {
@@ -60,8 +58,8 @@
             },
             "startupProbe": {
               "httpGet": {
-                "path": "/healthz",
-                "port": 8080
+                "path": "/products",
+                "port": 80
               },
               "initialDelaySeconds": 10,
               "periodSeconds": 15,
@@ -69,16 +67,16 @@
             },
             "readinessProbe": {
               "httpGet": {
-                "path": "/healthz",
-                "port": 8080
+                "path": "/",
+                "port": 80
               },
               "initialDelaySeconds": 10,
               "periodSeconds": 5
             },
             "livenessProbe": {
               "httpGet": {
-                "path": "/healthz",
-                "port": 8080
+                "path": "/",
+                "port": 80
               },
               "initialDelaySeconds": 20,
               "periodSeconds": 10,
