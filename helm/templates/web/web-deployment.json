@@ -2,9 +2,9 @@
   "apiVersion": "apps/v1",
   "kind": "Deployment",
   "metadata": {
-    "name": "web-deployment",
+    "name": "{{ .Release.Name }}-web-deployment",
     "labels": {
-      "app": "web"
+      "app": "{{ .Release.Name }}-web"
     },
     "annotations": {
       "prometheus.io/scrape": "true",
@@ -14,7 +14,7 @@
     }
   },
   "spec": {
-    "replicas": 1,
+    "replicas": {{.Values.web.replicas}},
     "selector": {
       "matchLabels": {
         "app": "web"
@@ -23,7 +23,7 @@
     "template": {
       "metadata": {
         "labels": {
-          "app": "web"
+          "app": "{{ .Release.Name }}-web"
         },
         "annotations": {
           "prometheus.io/scrape": "true",
@@ -44,7 +44,7 @@
         "containers": [
           {
             "name": "web",
-            "image": "widgetario/web:21.03",
+            "image": "{{.Values.web.images.repository}}:{{.Values.web.images.tag}",
             "ports": [
               {
                 "containerPort": 80,
@@ -69,10 +69,12 @@
                 "readOnly": true
               }
             ],
+            {{- if .Values.web.resources.enabled}}
             "resources": {
-              "requests": { "cpu": "50m", "memory": "64Mi" },
-              "limits": { "cpu": "200m", "memory": "256Mi" }
+              "requests": { "cpu": "{{.Values.web.resources.requests.cpu}}", "memory": "{{.Values.web.resources.requests.memory}}" },
+              "limits": { "cpu": "{{.Values.web.resources.limits.cpu}}", "memory": "{{.Values.web.resources.limits.memory}}" }
             },
+            {{- end }}
             "readinessProbe": {
               "httpGet": {
                 "path": "/",

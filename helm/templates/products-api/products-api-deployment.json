@@ -1,0 +1,97 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "{{ .Release.Name }}-products-api-deployment",
+    "labels": {
+      "app": "{{ .Release.Name }}-products-api"
+    },
+    "annotations": {
+      "prometheus.io/scrape": "true",
+      "prometheus.io/port": "80",
+      "prometheus.io/path": "/actuator/prometheus",
+      "prometheus.io/component": "products-api"
+    }
+  },
+  "spec": {
+    "replicas": {{.Values.products_api.replicas}},
+    "selector": {
+      "matchLabels": {
+        "app": "products-api"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "{{ .Release.Name }}-products-api"
+        },
+        "annotations": {
+          "prometheus.io/scrape": "true",
+          "prometheus.io/port": "80",
+          "prometheus.io/path": "/actuator/prometheus",
+          "prometheus.io/component": "products-api"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "app-properties",
+            "secret": {
+              "secretName": "products-api-secret"
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "products-api",
+            "image": "{{.Values.products_api.image.repository}}:{{.Values.products_api.image.tag}}",
+            "ports": [
+              {
+                "containerPort": 80,
+                "name": "products-port"
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "app-properties",
+                "mountPath": "/app//application.properties",
+                "subPath": "application.properties",
+                "readOnly": true
+              }
+            ],
+            "resources": {
+              "requests": { "cpu": "100m", "memory": "128Mi" },
+              "limits": { "cpu": "500m", "memory": "512Mi" }
+            },
+            "startupProbe": {
+              "httpGet": {
+                "path": "/products",
+                "port": 80
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 15,
+              "failureThreshold": 15
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/",
+                "port": 80
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 5
+            },
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/",
+                "port": 80
+              },
+              "initialDelaySeconds": 20,
+              "periodSeconds": 10,
+              "failureThreshold": 3
+            }
+          }
+        ]
+      }
+    }
+  }
+}

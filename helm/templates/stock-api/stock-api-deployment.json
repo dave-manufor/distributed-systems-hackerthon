@@ -1,0 +1,104 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "{{ .Release.Name }}-stock-api-deployment",
+    "labels": {
+      "app": "{{ .Release.Name }}-stock-api"
+    },
+    "annotations": {
+      "prometheus.io/scrape": "true",
+      "prometheus.io/port": "8080",
+      "prometheus.io/path": "/metrics",
+      "prometheus.io/component": "stock-api"
+    }
+  },
+  "spec": {
+    "replicas": {{.Values.stock_api.replicas}},
+    "selector": {
+      "matchLabels": {
+        "app": "stock-api"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "{{ .Release.Name }}-stock-api"
+        },
+        "annotations": {
+          "prometheus.io/scrape": "true",
+          "prometheus.io/port": "8080",
+          "prometheus.io/path": "/metrics",
+          "prometheus.io/component": "stock-api"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "cache-volume",
+            "emptyDir": {}
+          }
+        ],
+        "containers": [
+          {
+            "name": "stock-api",
+            "image": "{{.Values.stock_api.images.repository}}:{{.Values.stock_api.images.tag}}",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "name": "stock-api-port"
+              }
+            ],
+            "env": [
+              {
+                "name": "POSTGRES_CONNECTION_STRING",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "stock-api-secret",
+                    "key": "connection_string"
+                  }
+                }
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "cache-volume",
+                "mountPath": "/cache"
+              }
+            ],
+            "resources": {
+              "requests": { "cpu": "100m", "memory": "128Mi" },
+              "limits": { "cpu": "500m", "memory": "512Mi" }
+            },
+            "startupProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 8080
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 15,
+              "failureThreshold": 15
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 8080
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 5
+            },
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 8080
+              },
+              "initialDelaySeconds": 20,
+              "periodSeconds": 10,
+              "failureThreshold": 3
+            }
+          }
+        ]
+      }
+    }
+  }
+}

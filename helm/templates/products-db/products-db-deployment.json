@@ -1,0 +1,79 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "StatefulSet",
+  "metadata": {
+    "name": "{{ .Release.Name }}-products-db"
+  },
+  "spec": {
+    "replicas": {{.Values.products_db.replicas}},
+    "serviceName": "products-db",
+    "selector": {
+      "matchLabels": {
+        "app": "products-db"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "{{ .Release.Name }}-products-db"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "products-db",
+            "image": "{{.Values.products_db.image.repository}}:{{.Values.products_db.image.tag}}",
+            "ports": [
+              {
+                "containerPort": 5432,
+                "name": "postgres-port"
+              }
+            ],
+            "envFrom": [
+              {
+                "secretRef": {
+                  "name": "db-secret"
+                }
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "data",
+                "mountPath": "/var/lib/postgresql/data"
+              }
+            ],
+            "resources": {
+              "requests": { "cpu": "500m", "memory": "512Mi" },
+              "limits": { "cpu": "2", "memory": "1Gi" }
+            },
+            "livenessProbe": {
+              "tcpSocket": { "port": 5432 },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 10
+            },
+            "readinessProbe": {
+              "tcpSocket": { "port": 5432 },
+              "initialDelaySeconds": 5,
+              "periodSeconds": 5
+            }
+          }
+        ]
+      }
+    },
+    "volumeClaimTemplates": [
+      {
+        "metadata": {
+          "name": "{{ .Release.Name }}-data"
+        },
+        "spec": {
+          "accessModes": ["ReadWriteOnce"],
+          "resources": {
+            "requests": {
+              "storage": "100Mi"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

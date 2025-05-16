@@ -1,0 +1,57 @@
+products_api:
+  replicas: 1
+  image:
+    repository: widgetario/products-api
+    tag: "21.03"
+  resources:
+    enabled: true
+    limits:
+      cpu: ""
+      memory: ""
+    requests:
+      cpu: ""
+      memory: ""
+
+products_db:
+  replicas: 2
+  image:
+    repository: widgetario/products-db
+    tag: "postgres-replicated"
+  resources:
+    enabled: true
+    limits:
+      cpu: ""
+      memory: ""
+    requests:
+      cpu: ""
+      memory: ""
+
+stock_api:
+  replicas: 1
+  image:
+    repository: widgetario/stock-api
+    tag: "21.03"
+  resources:
+    enabled: true
+    limits:
+      cpu: ""
+      memory: ""
+    requests:
+      cpu: ""
+      memory: ""
+
+web:
+  replicas: 1
+  image:
+    repository: widgetario/web
+    tag: "21.03"
+  resources:
+    enabled: true
+    limits:
+      cpu: "64Mi"
+      memory: "200m"
+    requests:
+      cpu: "50m"
+      memory: "256Mi"
+
+config:
