@@ -450,7 +450,7 @@ If using MIT, the SPDX identifier is MIT.
 
 Authors:
 
-Dave Manufor (Implied from repository name)
+Dave Manufor 
 Daryn Ongera
 Nyakio Ndambiri
 Ogoro Ruth
