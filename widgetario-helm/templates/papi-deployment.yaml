@@ -1,0 +1,57 @@
+{{- if .Values.papi.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-papi
+  labels:
+    {{- include "widgetario.labels" . | nindent 4 }}
+    app: papi
+spec:
+  replicas: {{ .Values.papi.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "widgetario.selectorLabels" . | nindent 6 }}
+      app: papi
+  template:
+    metadata:
+      labels:
+        {{- include "widgetario.selectorLabels" . | nindent 8 }}
+        app: papi
+    spec:
+      containers:
+        - name: papi
+          image: "{{ .Values.papi.image.repository }}:{{ .Values.papi.image.tag }}"
+          imagePullPolicy: {{ .Values.papi.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          {{- if .Values.global.includeReadiness }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- end }}
+          {{- if .Values.global.includeLiveness }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          {{- end }}
+          env:
+            - name: DB_CONNECTION_STRING
+              value: "postgresql://{{ .Values.pdb.auth.username }}:{{ .Values.pdb.auth.password }}@{{ .Release.Name }}-pdb:5432/{{ .Values.pdb.auth.database }}"
+          {{- if .Values.global.includeResources }}
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          {{- end }}
+{{- end }}

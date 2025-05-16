@@ -1,0 +1,74 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-pdb
+  labels:
+    {{- include "widgetario.labels" . | nindent 4 }}
+    app: pdb
+spec:
+  serviceName: {{ .Release.Name }}-pdb
+  replicas: {{ .Values.pdb.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "widgetario.selectorLabels" . | nindent 6 }}
+      app: pdb
+  template:
+    metadata:
+      labels:
+        {{- include "widgetario.selectorLabels" . | nindent 8 }}
+        app: pdb
+    spec:
+      containers:
+        - name: pdb
+          image: "{{ .Values.pdb.image.repository }}:{{ .Values.pdb.image.tag }}"
+          imagePullPolicy: {{ .Values.pdb.image.pullPolicy }}
+          ports:
+            - name: postgresql
+              containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.pdb.auth.username }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.pdb.auth.password }}
+            - name: POSTGRES_DB
+              value: {{ .Values.pdb.auth.database }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          {{- if .Values.global.includeReadiness }}
+          readinessProbe:
+            tcpSocket:
+              port: postgresql
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- end }}
+          {{- if .Values.global.includeLiveness }}
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - {{ .Values.pdb.auth.username }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          {{- end }}
+          {{- if .Values.global.includeResources }}
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.pdb.persistence.size }}
+{{- end }}

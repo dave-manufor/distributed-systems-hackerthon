@@ -1,0 +1,70 @@
+{
+  "global": {
+    "domainName": "widgetario.local",
+    "includeReadiness": true,
+    "includeLiveness": true,
+    "includeResources": false
+  },
+  "papi": {
+    "enabled": true,
+    "image": {
+      "repository": "widgetario/products-api",
+      "tag": "21.03",
+      "pullPolicy": "IfNotPresent"
+    },
+    "replicaCount": 1,
+    "service": {
+      "type": "ClusterIP",
+      "port": 80
+    }
+  },
+  "pdb": {
+    "enabled": true,
+    "image": {
+      "repository": "widgetario/products-db-replicated",
+      "tag": "21.03",
+      "pullPolicy": "IfNotPresent"
+    },
+    "replicaCount": 1,
+    "auth": {
+      "username": "postgres",
+      "password": "sm0kk3ts7",
+      "database": "products"
+    },
+    "persistence": {
+      "size": "50Mi"
+    }
+  },
+  "sapi": {
+    "enabled": true,
+    "image": {
+      "repository": "widgetario/stock-api",
+      "tag": "21.03",
+      "pullPolicy": "IfNotPresent"
+    },
+    "replicaCount": 1,
+    "service": {
+      "type": "ClusterIP",
+      "port": 80
+    }
+  },
+  "web": {
+    "enabled": true,
+    "image": {
+      "repository": "widgetario/web",
+      "tag": "21.03-v2",
+      "pullPolicy": "IfNotPresent"
+    },
+    "loggerImage": "alpine:3.14",
+    "replicaCount": 1,
+    "theme": "dark",
+    "service": {
+      "type": "ClusterIP",
+      "port": 80
+    }
+  },
+  "ingress": {
+    "enabled": true,
+    "className": "nginx"
+  }
+}

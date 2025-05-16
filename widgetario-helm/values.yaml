@@ -1,0 +1,64 @@
+# Global values
+global:
+  domainName: widgetario.local
+  includeReadiness: true
+  includeLiveness: true
+  includeResources: false
+
+# Products API
+papi:
+  enabled: true
+  image:
+    repository: widgetario/products-api
+    tag: "21.03"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+
+# Products DB
+pdb:
+  enabled: true
+  image:
+    repository: widgetario/products-db-replicated
+    tag: "21.03"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  auth:
+    username: postgres
+    password: "sm0kk3ts7"
+    database: products
+  persistence:
+    size: 50Mi
+
+# Stock API
+sapi:
+  enabled: true
+  image:
+    repository: widgetario/stock-api
+    tag: "21.03"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+
+# Web
+web:
+  enabled: true
+  image:
+    repository: widgetario/web
+    tag: "21.03-v2"
+    pullPolicy: IfNotPresent
+  loggerImage: "alpine:3.14"
+  replicaCount: 1
+  theme: "dark"
+  service:
+    type: ClusterIP
+    port: 80
+
+# Ingress
+ingress:
+  enabled: true
+  className: "nginx"

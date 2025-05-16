@@ -1,0 +1,45 @@
+{
+  "global": {
+    "domainName": "widgetario.smoke",
+    "includeReadiness": true,
+    "includeLiveness": true,
+    "includeResources": false
+  },
+  "papi": {
+    "image": {
+      "repository": "widgetario/products-api",
+      "tag": "21.03"
+    },
+    "replicaCount": 1
+  },
+  "pdb": {
+    "image": {
+      "repository": "widgetario/products-db-replicated",
+      "tag": "21.03"
+    },
+    "replicaCount": 1,
+    "persistence": {
+      "size": "50Mi"
+    },
+    "auth": {
+      "username": "postgres",
+      "password": "sm0kk3ts7"
+    }
+  },
+  "sapi": {
+    "image": {
+      "repository": "widgetario/stock-api",
+      "tag": "21.03"
+    },
+    "replicaCount": 1
+  },
+  "web": {
+    "image": {
+      "repository": "widgetario/web",
+      "tag": "21.03-v2"
+    },
+    "loggerImage": "alpine:3.14",
+    "replicaCount": 1,
+    "theme": "dark"
+  }
+}

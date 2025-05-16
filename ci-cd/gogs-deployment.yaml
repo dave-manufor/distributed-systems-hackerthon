@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gogs
+  namespace: ci-cd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gogs
+  template:
+    metadata:
+      labels:
+        app: gogs
+    spec:
+      containers:
+      - name: gogs
+        image: gogs/gogs:latest
+        ports:
+        - containerPort: 3000
+          name: web
+        - containerPort: 22
+          name: ssh
+        volumeMounts:
+        - name: gogs-data
+          mountPath: /data
+      volumes:
+      - name: gogs-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gogs
+  namespace: ci-cd
+spec:
+  type: NodePort
+  ports:
+  - name: web
+    port: 3000
+    targetPort: web
+    nodePort: 30080
+  - name: ssh
+    port: 22
+    targetPort: ssh
+    nodePort: 30022
+  selector:
+    app: gogs

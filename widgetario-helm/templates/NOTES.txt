@@ -1,0 +1,32 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+{{- if .Values.ingress.enabled }}
+You can access the application at:
+  http://{{ .Values.global.domainName }}
+
+{{- else if contains "NodePort" .Values.web.service.type }}
+You can access the application by running these commands:
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-web)
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+
+{{- else if contains "LoadBalancer" .Values.web.service.type }}
+You can access the application by running these commands:
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+  You can watch the status by running: kubectl get --namespace {{ .Release.Namespace }} svc -w {{ .Release.Name }}-web
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ .Release.Name }}-web --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
+  echo http://$SERVICE_IP:{{ .Values.web.service.port }}
+
+{{- else if contains "ClusterIP" .Values.web.service.type }}
+You can access the application by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app=web,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:80
+  Visit http://localhost:8080 to access the application
+{{- end }}

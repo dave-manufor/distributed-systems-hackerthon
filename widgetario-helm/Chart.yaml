@@ -1,0 +1,6 @@
+apiVersion: v2
+name: widgetario
+description: A Helm chart for Widgetario application
+type: application
+version: 0.1.0
+appVersion: "21.03"
